@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -121,17 +121,27 @@ def login_view(request):
 from .models import Project
 from .ai import extract_features, estimate_price
 
-from .ml_model import predict_price, estimate_time
+from .models import Bid
 
+@login_required
 def client_dashboard(request):
+
+    if request.user.profile.role != "client":
+        return redirect("/")
+
     result = None
 
+    # 🔹 Handle form submission
     if request.method == "POST":
         text = request.POST.get("description")
 
+        from .ml_model import predict_price, estimate_time
+
         min_p, max_p, avg = predict_price(text)
         time = estimate_time(avg)
+
         Project.objects.create(
+            user=request.user,
             description=text,
             min_price=min_p,
             max_price=max_p
@@ -144,15 +154,35 @@ def client_dashboard(request):
             "time": time
         }
 
-    return render(request, "core/client.html", {"result": result})
+    # 🔥 ALWAYS FETCH PROJECTS (IMPORTANT)
+    projects = Project.objects.filter(user=request.user).order_by("-created_at")
+
+    project_data = []
+
+    for p in projects:
+        bids = Bid.objects.filter(project=p).order_by("amount")
+
+        project_data.append({
+            "project": p,
+            "bids": bids
+        })
+
+    return render(request, "core/client.html", {
+        "result": result,
+        "projects": project_data   # ✅ correct
+    })
 
 from .models import Bid
 
+@login_required
 def freelancer_dashboard(request):
+
+    # 🔒 ROLE CHECK
+    if request.user.profile.role != "freelancer":
+        return redirect("/")
+
     projects = Project.objects.all()
     return render(request, "core/freelancer.html", {"projects": projects})
-
-
 
 
 from django.shortcuts import redirect

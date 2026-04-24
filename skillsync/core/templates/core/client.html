@@ -1,6 +1,6 @@
 <h1>Client Dashboard</h1>
 
-<h3>Post a Project</h3>
+<h2>Post a Project</h2>
 
 <form method="POST">
     {% csrf_token %}
@@ -9,21 +9,30 @@
 </form>
 
 {% if result %}
-    <h2>AI Estimation</h2>
-
-    <p>💰 Price Range: ₹{{ result.min }} – ₹{{ result.max }}</p>
-    <p>📊 Average Price: ₹{{ result.avg }}</p>
-
-    {% if result.avg < 20000 %}
-        <p>⚡ Complexity: Low</p>
-    {% elif result.avg < 50000 %}
-        <p>⚡ Complexity: Medium</p>
-    {% else %}
-        <p>⚡ Complexity: High</p>
-    {% endif %}
-    <p>⏱️ Estimated Time: {{ result.time }}</p>
+    <h3>💰 Estimated Price: ₹{{ result.min }} – ₹{{ result.max }}</h3>
+    <p>📊 Avg: ₹{{ result.avg }}</p>
+    <p>⏱️ Time: {{ result.time }}</p>
 {% endif %}
 
+<hr>
 
-<br>
-<a href="/freelancer/">View Freelancers (Projects)</a>
+<h2>Your Projects</h2>
+
+{% for item in projects %}
+    <div style="border:2px solid black; margin:10px; padding:10px;">
+
+        <p><b>{{ item.project.description }}</b></p>
+        <p>💰 {{ item.project.min_price }} - {{ item.project.max_price }}</p>
+
+        <h4>Bids:</h4>
+
+        {% for b in item.bids %}
+            <p>👤 {{ b.freelancer }} → ₹{{ b.amount }}</p>
+        {% empty %}
+            <p>No bids yet</p>
+        {% endfor %}
+
+    </div>
+{% empty %}
+    <p>No projects yet</p>
+{% endfor %}

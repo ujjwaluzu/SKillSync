@@ -16,6 +16,7 @@ class Profile(models.Model):
     
 # Create your models here.
 class Project(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # 🔥 ADD THIS
     description = models.TextField()
     min_price = models.IntegerField()
     max_price = models.IntegerField()
