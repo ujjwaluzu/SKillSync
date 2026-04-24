@@ -1,0 +1,29 @@
+<h1>Client Dashboard</h1>
+
+<h3>Post a Project</h3>
+
+<form method="POST">
+    {% csrf_token %}
+    <textarea name="description" placeholder="Describe your project"></textarea><br><br>
+    <button type="submit">Submit</button>
+</form>
+
+{% if result %}
+    <h2>AI Estimation</h2>
+
+    <p>💰 Price Range: ₹{{ result.min }} – ₹{{ result.max }}</p>
+    <p>📊 Average Price: ₹{{ result.avg }}</p>
+
+    {% if result.avg < 20000 %}
+        <p>⚡ Complexity: Low</p>
+    {% elif result.avg < 50000 %}
+        <p>⚡ Complexity: Medium</p>
+    {% else %}
+        <p>⚡ Complexity: High</p>
+    {% endif %}
+    <p>⏱️ Estimated Time: {{ result.time }}</p>
+{% endif %}
+
+
+<br>
+<a href="/freelancer/">View Freelancers (Projects)</a>

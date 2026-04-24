@@ -1,0 +1,17 @@
+<h1>Freelancer Dashboard</h1>
+
+<h3>Available Projects</h3>
+
+{% for p in projects %}
+    <div style="border:1px solid black; margin:10px; padding:10px;">
+        <p>{{ p.description }}</p>
+        <p>💰 {{ p.min_price }} - {{ p.max_price }}</p>
+
+        <form method="POST" action="/bid-form/{{ p.id }}/">
+            {% csrf_token %}
+            <input type="text" name="freelancer" placeholder="Your name">
+            <input type="number" name="amount" placeholder="Your bid">
+            <button type="submit">Bid</button>
+        </form>
+    </div>
+{% endfor %}
