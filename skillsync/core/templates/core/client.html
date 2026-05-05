@@ -1,38 +1,168 @@
-<h1>Client Dashboard</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client Dashboard</title>
 
-<h2>Post a Project</h2>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
-<form method="POST">
-    {% csrf_token %}
-    <textarea name="description" placeholder="Describe your project"></textarea><br><br>
-    <button type="submit">Submit</button>
-</form>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7fa;
+        }
 
-{% if result %}
-    <h3>💰 Estimated Price: ₹{{ result.min }} – ₹{{ result.max }}</h3>
-    <p>📊 Avg: ₹{{ result.avg }}</p>
-    <p>⏱️ Time: {{ result.time }}</p>
-{% endif %}
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 40px auto;
+        }
 
-<hr>
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-<h2>Your Projects</h2>
+        /* 🔹 FORM CARD */
+        .form-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
 
-{% for item in projects %}
-    <div style="border:2px solid black; margin:10px; padding:10px;">
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            resize: none;
+            height: 80px;
+        }
 
-        <p><b>{{ item.project.description }}</b></p>
-        <p>💰 {{ item.project.min_price }} - {{ item.project.max_price }}</p>
+        textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
 
-        <h4>Bids:</h4>
+        button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
 
-        {% for b in item.bids %}
-            <p>👤 {{ b.freelancer }} → ₹{{ b.amount }}</p>
-        {% empty %}
-            <p>No bids yet</p>
-        {% endfor %}
+        button:hover {
+            background: #0077ff;
+        }
 
+        /* 🔹 RESULT BOX */
+        .result {
+            background: #e8f3ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        /* 🔹 PROJECT CARDS */
+        .project-card {
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .project-desc {
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .price {
+            color: #4facfe;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        /* 🔹 BIDS */
+        .bid {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .no-bids {
+            color: #777;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Client Dashboard 📊</h1>
+
+    <!-- 🔹 PROJECT FORM -->
+    <div class="form-card">
+        <h2>Post a Project</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="description" placeholder="Describe your project..."></textarea>
+            <button type="submit">Submit</button>
+        </form>
+
+        {% if result %}
+            <div class="result">
+                <p>💰 <b>₹{{ result.min }} – ₹{{ result.max }}</b></p>
+                <p>📊 Avg: ₹{{ result.avg }}</p>
+                <p>⏱️ Time: {{ result.time }}</p>
+            </div>
+        {% endif %}
     </div>
-{% empty %}
-    <p>No projects yet</p>
-{% endfor %}
+
+    <!-- 🔹 PROJECT LIST -->
+    <h2>Your Projects</h2>
+
+    {% for item in projects %}
+        <div class="project-card">
+
+            <div class="project-desc">
+                {{ item.project.description }}
+            </div>
+
+            <div class="price">
+                💰 ₹{{ item.project.min_price }} – ₹{{ item.project.max_price }}
+            </div>
+
+            <h4>Bids</h4>
+
+            {% for b in item.bids %}
+                <div class="bid">
+                    <span>👤 {{ b.freelancer }}</span>
+                    <span>₹{{ b.amount }}</span>
+                </div>
+            {% empty %}
+                <p class="no-bids">No bids yet</p>
+            {% endfor %}
+
+        </div>
+
+    {% empty %}
+        <p>No projects yet</p>
+    {% endfor %}
+
+</div>
+
+</body>
+</html>

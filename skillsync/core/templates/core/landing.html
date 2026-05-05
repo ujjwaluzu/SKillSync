@@ -1,7 +1,116 @@
-<h1>SkillSync 🚀</h1>
-<h3>Choose your role</h3>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SkillSync</title>
 
-<a href="/signup/client/"><button>I am a Client</button></a>
-<a href="/signup/freelancer/"><button>I am a Freelancer</button></a>
+    <!-- 🔥 Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
-<a href="/login/">Already have an account? Login</a>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif; /* ✅ modern font */
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 14px;
+            text-align: center;
+            width: 360px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        p {
+            color: #777;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        /* 🔗 Remove default link style */
+        a {
+            text-decoration: none;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .client {
+            background: #4facfe;
+            color: white;
+        }
+
+        .freelancer {
+            background: #00c896;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .login {
+            margin-top: 18px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .login a {
+            color: #4facfe;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .login a:hover {
+            color: #0077ff;
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>SkillSync 🚀</h1>
+    <p>AI-powered freelancing made smarter</p>
+
+    <a href="/signup/client/">
+        <button class="btn client">I am a Client</button>
+    </a>
+
+    <a href="/signup/freelancer/">
+        <button class="btn freelancer">I am a Freelancer</button>
+    </a>
+
+    <div class="login">
+        Already have an account?
+        <a href="/login/">Login</a>
+    </div>
+
+</div>
+
+</body>
+</html>
