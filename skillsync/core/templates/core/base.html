@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SkillSync{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg app-navbar sticky-top">
+        <div class="container-fluid px-3 px-lg-4">
+            <a class="navbar-brand brand-lockup" href="{% url 'landing' %}">
+                <span class="brand-mark">S</span>
+                <span>SkillSync</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                    {% if user.is_authenticated %}
+                        {% if user.profile.role == "client" %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'client_dashboard' %}">Dashboard</a></li>
+                        {% else %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'freelancer_dashboard' %}">Find work</a></li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link notification-link" href="{% url 'notifications' %}">
+                                Notifications
+                                {% if unread_notifications %}
+                                    <span class="notification-dot">{{ unread_notifications }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'inbox' %}">Messages</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+                        <li class="nav-item"><a class="btn btn-ghost btn-sm" href="{% url 'logout' %}">Sign out</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                        <li class="nav-item"><a class="btn btn-primary btn-sm" href="{% url 'signup' 'client' %}">Start hiring</a></li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">
+                            <i class="bi bi-moon-stars"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <div class="toast-stack" aria-live="polite" aria-atomic="true">
+        {% for message in messages %}
+            <div class="app-toast {{ message.tags }}">
+                <span>{{ message }}</span>
+                <button type="button" data-dismiss-toast aria-label="Dismiss"><i class="bi bi-x"></i></button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'core/js/app.js' %}"></script>
+</body>
+</html>

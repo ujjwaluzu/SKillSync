@@ -1,168 +1,164 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Client Dashboard</title>
+{% extends "core/base.html" %}
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+{% block title %}Client Dashboard - SkillSync{% endblock %}
 
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: #f5f7fa;
-        }
+{% block content %}
+<div class="app-shell">
+    {% include "core/includes/sidebar.html" with active="client" %}
 
-        .container {
-            width: 90%;
-            max-width: 1000px;
-            margin: 40px auto;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        /* 🔹 FORM CARD */
-        .form-card {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            font-size: 14px;
-            resize: none;
-            height: 80px;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #4facfe;
-        }
-
-        button {
-            margin-top: 10px;
-            padding: 10px 15px;
-            background: #4facfe;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #0077ff;
-        }
-
-        /* 🔹 RESULT BOX */
-        .result {
-            background: #e8f3ff;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-        }
-
-        /* 🔹 PROJECT CARDS */
-        .project-card {
-            background: white;
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        }
-
-        .project-desc {
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .price {
-            color: #4facfe;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        /* 🔹 BIDS */
-        .bid {
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .no-bids {
-            color: #777;
-        }
-
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <h1>Client Dashboard 📊</h1>
-
-    <!-- 🔹 PROJECT FORM -->
-    <div class="form-card">
-        <h2>Post a Project</h2>
-
-        <form method="POST">
-            {% csrf_token %}
-            <textarea name="description" placeholder="Describe your project..."></textarea>
-            <button type="submit">Submit</button>
-        </form>
-
-        {% if result %}
-            <div class="result">
-                <p>💰 <b>₹{{ result.min }} – ₹{{ result.max }}</b></p>
-                <p>📊 Avg: ₹{{ result.avg }}</p>
-                <p>⏱️ Time: {{ result.time }}</p>
+    <section class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <span class="eyebrow">Client dashboard</span>
+                <h1>Post, price, and hire with AI support.</h1>
             </div>
-        {% endif %}
-    </div>
-
-    <!-- 🔹 PROJECT LIST -->
-    <h2>Your Projects</h2>
-
-    {% for item in projects %}
-        <div class="project-card">
-
-            <div class="project-desc">
-                {{ item.project.description }}
-            </div>
-
-            <div class="price">
-                💰 ₹{{ item.project.min_price }} – ₹{{ item.project.max_price }}
-            </div>
-
-            <h4>Bids</h4>
-
-            {% for b in item.bids %}
-                <div class="bid">
-                    <span>👤 {{ b.freelancer }}</span>
-                    <span>₹{{ b.amount }}</span>
-                </div>
-            {% empty %}
-                <p class="no-bids">No bids yet</p>
-            {% endfor %}
-
+            <a class="btn btn-ghost" href="{% url 'profile' %}">
+                <i class="bi bi-person-gear"></i> Edit profile
+            </a>
         </div>
 
-    {% empty %}
-        <p>No projects yet</p>
-    {% endfor %}
+        <div class="metric-grid">
+            <div class="metric-card">
+                <span>Total projects</span>
+                <strong>{{ analytics.total_projects }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Open projects</span>
+                <strong>{{ analytics.open_projects }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Total bids</span>
+                <strong>{{ analytics.total_bids }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Avg AI budget</span>
+                <strong>Rs. {{ analytics.avg_budget|default:0 }}</strong>
+            </div>
+        </div>
 
+        <div class="dashboard-grid">
+            <div class="glass-panel form-panel">
+                <div class="panel-heading">
+                    <div>
+                        <span class="eyebrow">New project</span>
+                        <h2>Describe the work</h2>
+                    </div>
+                    <span class="status-pill">AI enabled</span>
+                </div>
+                <form method="POST" data-loading>
+                    {% csrf_token %}
+                    <div class="form-floating mb-3">
+                        <input class="form-control" type="text" name="title" id="title" placeholder="Project title">
+                        <label for="title">Project title</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <textarea class="form-control tall-textarea" name="description" id="description" placeholder="Describe your project" required></textarea>
+                        <label for="description">Describe scope, features, integrations, timeline</label>
+                    </div>
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="bi bi-magic"></i> Generate estimate and post
+                    </button>
+                </form>
+            </div>
+
+            <div class="glass-panel">
+                <div class="panel-heading">
+                    <div>
+                        <span class="eyebrow">Recent activity</span>
+                        <h2>Notifications</h2>
+                    </div>
+                    <a href="{% url 'notifications' %}">View all</a>
+                </div>
+                <div class="activity-list">
+                    {% for notification in recent_notifications %}
+                        <a href="{% url 'mark_notification_read' notification.id %}" class="activity-item {% if not notification.is_read %}unread{% endif %}">
+                            <strong>{{ notification.title }}</strong>
+                            <span>{{ notification.message|truncatechars:82 }}</span>
+                        </a>
+                    {% empty %}
+                        <div class="empty-state">No notifications yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title-row">
+            <div>
+                <span class="eyebrow">Your projects</span>
+                <h2>AI estimates, bids, and recommendations</h2>
+            </div>
+        </div>
+
+        <div class="project-list">
+            {% for item in project_cards %}
+                <article class="project-card">
+                    <div class="project-card-header">
+                        <div>
+                            <div class="tag-row">
+                                <span class="status-pill">{{ item.project.get_status_display }}</span>
+                                <span class="status-pill subtle">{{ item.project.get_complexity_display }}</span>
+                                <span class="status-pill subtle">{{ item.project.confidence_score }}% confidence</span>
+                            </div>
+                            <h3><a href="{{ item.project.get_absolute_url }}">{{ item.project.title_or_summary }}</a></h3>
+                            <p>{{ item.project.description|truncatechars:190 }}</p>
+                        </div>
+                        <div class="budget-block">
+                            <span>AI budget</span>
+                            <strong>{{ item.project.budget_range }}</strong>
+                            <small>{{ item.project.estimated_time_label }}</small>
+                        </div>
+                    </div>
+
+                    <div class="skill-row">
+                        {% for skill in item.project.skills %}
+                            <span>{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="insight-box">
+                        <i class="bi bi-lightbulb"></i>
+                        <span>{{ item.project.budget_justification }}</span>
+                    </div>
+
+                    <div class="bid-section">
+                        <div>
+                            <h4>Bids</h4>
+                            {% if item.best_bid %}
+                                <div class="best-bid">
+                                    <i class="bi bi-trophy"></i>
+                                    <span>
+                                        Best bid: Rs. {{ item.best_bid.amount }} by
+                                        {{ item.best_bid.freelancer.profile.display_name }}
+                                        ({{ item.best_bid.match_score }}% match)
+                                    </span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="bid-list">
+                            {% for bid in item.bids|slice:":4" %}
+                                <div class="bid-row">
+                                    <span>{{ bid.freelancer.profile.display_name }}</span>
+                                    <strong>Rs. {{ bid.amount }}</strong>
+                                    <small>{{ bid.match_score }}%</small>
+                                    {% if bid.status == "pending" %}
+                                        <form class="inline-form" method="POST" action="{% url 'accept_bid' bid.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn btn-sm btn-ghost" type="submit">Accept</button>
+                                        </form>
+                                    {% else %}
+                                        <span class="status-pill">{{ bid.get_status_display }}</span>
+                                    {% endif %}
+                                </div>
+                            {% empty %}
+                                <div class="empty-state">No bids yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <div class="empty-state large">Post your first project to generate AI estimates and recommendations.</div>
+            {% endfor %}
+        </div>
+    </section>
 </div>
-
-</body>
-</html>
+{% endblock %}

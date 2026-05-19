@@ -1,126 +1,144 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Freelancer Dashboard</title>
+{% extends "core/base.html" %}
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+{% block title %}Freelancer Dashboard - SkillSync{% endblock %}
 
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: #f5f7fa;
-        }
+{% block content %}
+<div class="app-shell">
+    {% include "core/includes/sidebar.html" with active="freelancer" %}
 
-        .container {
-            width: 90%;
-            max-width: 900px;
-            margin: 40px auto;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: white;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            transition: 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .desc {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .price {
-            font-weight: 600;
-            color: #4facfe;
-            margin-bottom: 15px;
-        }
-
-        form {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        input {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            font-size: 14px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-        }
-
-        input[type="number"] {
-            width: 120px;
-        }
-
-        button {
-            padding: 10px 15px;
-            background: #00c896;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #009f75;
-        }
-
-        .empty {
-            text-align: center;
-            color: #777;
-        }
-
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <h1>Freelancer Dashboard 💼</h1>
-
-    {% for p in projects %}
-        <div class="card">
-
-            <div class="desc">
-                {{ p.description }}
+    <section class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <span class="eyebrow">Freelancer dashboard</span>
+                <h1>Find projects ranked for your skills.</h1>
             </div>
-
-            <div class="price">
-                💰 ₹{{ p.min_price }} – ₹{{ p.max_price }}
-            </div>
-
-            <form method="POST" action="/bid-form/{{ p.id }}/">
-                {% csrf_token %}
-                <input type="text" name="freelancer" placeholder="Your name">
-                <input type="number" name="amount" placeholder="Your bid">
-                <button type="submit">Place Bid</button>
-            </form>
-
+            <a class="btn btn-primary" href="{% url 'profile' %}">
+                <i class="bi bi-pencil-square"></i> Improve profile
+            </a>
         </div>
 
-    {% empty %}
-        <p class="empty">No projects available right now.</p>
-    {% endfor %}
+        <div class="metric-grid">
+            <div class="metric-card">
+                <span>Available projects</span>
+                <strong>{{ analytics.available_projects }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Saved projects</span>
+                <strong>{{ analytics.saved_projects }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Active bids</span>
+                <strong>{{ analytics.active_bids }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Accepted bids</span>
+                <strong>{{ analytics.accepted_bids }}</strong>
+            </div>
+        </div>
 
+        <form class="filter-bar glass-panel" method="GET">
+            <div class="form-floating">
+                <input class="form-control" name="q" id="q" value="{{ filters.q }}" placeholder="Search">
+                <label for="q">Search projects or skills</label>
+            </div>
+            <div class="form-floating">
+                <select class="form-select" name="complexity" id="complexity">
+                    <option value="">All complexity</option>
+                    <option value="basic" {% if filters.complexity == "basic" %}selected{% endif %}>Basic</option>
+                    <option value="intermediate" {% if filters.complexity == "intermediate" %}selected{% endif %}>Intermediate</option>
+                    <option value="advanced" {% if filters.complexity == "advanced" %}selected{% endif %}>Advanced</option>
+                    <option value="expert" {% if filters.complexity == "expert" %}selected{% endif %}>Expert</option>
+                </select>
+                <label for="complexity">Complexity</label>
+            </div>
+            <div class="form-floating">
+                <input class="form-control" type="number" name="min_budget" id="min_budget" value="{{ filters.min_budget }}" placeholder="Min budget">
+                <label for="min_budget">Minimum budget</label>
+            </div>
+            <label class="toggle-line">
+                <input type="checkbox" name="saved" value="1" {% if filters.saved %}checked{% endif %}>
+                Saved only
+            </label>
+            <button class="btn btn-primary" type="submit"><i class="bi bi-funnel"></i> Filter</button>
+        </form>
+
+        <div class="project-list">
+            {% for item in project_cards %}
+                <article class="project-card">
+                    <div class="project-card-header">
+                        <div>
+                            <div class="tag-row">
+                                {% for badge in item.badges %}
+                                    <span class="status-pill">{{ badge }}</span>
+                                {% endfor %}
+                                <span class="status-pill subtle">{{ item.project.get_complexity_display }}</span>
+                            </div>
+                            <h3><a href="{{ item.project.get_absolute_url }}">{{ item.project.title_or_summary }}</a></h3>
+                            <p>{{ item.project.description|truncatechars:210 }}</p>
+                        </div>
+                        <div class="match-card">
+                            <strong>{{ item.match.match_percentage }}%</strong>
+                            <span>skill match</span>
+                        </div>
+                    </div>
+
+                    <div class="skill-row">
+                        {% for skill in item.project.skills %}
+                            <span>{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="project-meta-grid">
+                        <div>
+                            <span>Budget</span>
+                            <strong>{{ item.project.budget_range }}</strong>
+                        </div>
+                        <div>
+                            <span>Estimated time</span>
+                            <strong>{{ item.project.estimated_time_label }}</strong>
+                        </div>
+                        <div>
+                            <span>Overlap</span>
+                            <strong>
+                                {% if item.match.skill_overlap %}
+                                    {{ item.match.skill_overlap|join:", " }}
+                                {% else %}
+                                    Build your profile skills
+                                {% endif %}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <form class="bid-form" method="POST" action="{% url 'place_bid_form' item.project.id %}" data-loading>
+                        {% csrf_token %}
+                        <input class="form-control" type="number" name="amount" placeholder="Bid amount" value="{% if item.existing_bid %}{{ item.existing_bid.amount }}{% endif %}" required>
+                        <input class="form-control" type="number" name="proposed_days" placeholder="Days" value="{% if item.existing_bid %}{{ item.existing_bid.proposed_days }}{% else %}{{ item.project.estimated_days }}{% endif %}" required>
+                        <input class="form-control" type="text" name="cover_letter" placeholder="Short proposal" value="{% if item.existing_bid %}{{ item.existing_bid.cover_letter }}{% endif %}">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-send"></i>
+                            {% if item.existing_bid %}Update{% else %}Bid{% endif %}
+                        </button>
+                        <button class="icon-button" type="submit" formaction="{% url 'toggle_saved_project' item.project.id %}" formmethod="POST" formnovalidate title="Save project">
+                            <i class="bi {% if item.saved %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
+                        </button>
+                    </form>
+                </article>
+            {% empty %}
+                <div class="empty-state large">No projects match the current filters.</div>
+            {% endfor %}
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="pagination-row" aria-label="Project pagination">
+                {% if page_obj.has_previous %}
+                    <a class="btn btn-ghost" href="?page={{ page_obj.previous_page_number }}&q={{ filters.q }}&complexity={{ filters.complexity }}&min_budget={{ filters.min_budget }}">Previous</a>
+                {% endif %}
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a class="btn btn-ghost" href="?page={{ page_obj.next_page_number }}&q={{ filters.q }}&complexity={{ filters.complexity }}&min_budget={{ filters.min_budget }}">Next</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    </section>
 </div>
-
-</body>
-</html>
+{% endblock %}

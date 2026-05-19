@@ -1,100 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login - SkillSync</title>
+{% extends "core/base.html" %}
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+{% block title %}Login - SkillSync{% endblock %}
 
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(to right, #4facfe, #00f2fe);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+{% block content %}
+<section class="auth-section">
+    <div class="auth-panel glass-panel">
+        <div class="auth-heading">
+            <span class="eyebrow">Welcome back</span>
+            <h1>Login to SkillSync</h1>
+            <p>Continue to your role-based dashboard and AI workspace.</p>
+        </div>
 
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 14px;
-            width: 320px;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        }
+        <form method="POST" data-loading>
+            {% csrf_token %}
+            <div class="form-floating mb-3">
+                <input class="form-control" type="text" name="username" id="username" placeholder="Username" required>
+                <label for="username">Username</label>
+            </div>
+            <div class="form-floating mb-4">
+                <input class="form-control" type="password" name="password" id="password" placeholder="Password" required>
+                <label for="password">Password</label>
+            </div>
+            <button class="btn btn-primary w-100 btn-lg" type="submit">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </button>
+        </form>
 
-        h2 {
-            margin-bottom: 20px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #4facfe;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #4facfe;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #0077ff;
-        }
-
-        .link {
-            margin-top: 15px;
-            font-size: 14px;
-        }
-
-        .link a {
-            text-decoration: none;
-            color: #4facfe;
-            font-weight: 500;
-        }
-
-        .link a:hover {
-            text-decoration: underline;
-        }
-
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <h2>Login</h2>
-
-    <form method="POST">
-        {% csrf_token %}
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
-
-    <div class="link">
-        Don't have an account? <a href="/">Sign up</a>
+        <div class="auth-switch">
+            New here?
+            <a href="{% url 'signup' 'client' %}">Client signup</a>
+            <span>or</span>
+            <a href="{% url 'signup' 'freelancer' %}">Freelancer signup</a>
+        </div>
     </div>
-
-</div>
-
-</body>
-</html>
+</section>
+{% endblock %}

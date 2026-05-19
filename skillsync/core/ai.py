@@ -1,21 +1,18 @@
-def extract_features(text):
-    text = text.lower()
+from .services.ai_engine import analyze_project, extract_skills
 
+
+def extract_features(text):
+    skills = extract_skills(text)
+    normalized = (text or "").lower()
     return {
-        "ecommerce": int("ecommerce" in text),
-        "payment": int("payment" in text),
-        "auth": int("login" in text or "auth" in text),
+        "skills": skills,
+        "ecommerce": int("ecommerce" in normalized or "store" in normalized),
+        "payment": int("payment" in normalized or "stripe" in normalized or "razorpay" in normalized),
+        "auth": int("login" in normalized or "auth" in normalized),
     }
 
 
 def estimate_price(features):
-    base = 5000
-
-    if features["ecommerce"]:
-        base += 20000
-    if features["payment"]:
-        base += 10000
-    if features["auth"]:
-        base += 5000
-
-    return base, int(base * 1.5)
+    description = " ".join(features.get("skills", [])) if isinstance(features, dict) else str(features)
+    analysis = analyze_project(description)
+    return analysis.min_price, analysis.max_price

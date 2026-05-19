@@ -1,116 +1,98 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>SkillSync</title>
+{% extends "core/base.html" %}
 
-    <!-- 🔥 Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+{% block title %}SkillSync - AI Freelancing Platform{% endblock %}
 
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif; /* ✅ modern font */
-            background: linear-gradient(to right, #4facfe, #00f2fe);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 14px;
-            text-align: center;
-            width: 360px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        }
-
-        h1 {
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        p {
-            color: #777;
-            margin-bottom: 25px;
-            font-size: 14px;
-        }
-
-        /* 🔗 Remove default link style */
-        a {
-            text-decoration: none;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 13px;
-            margin: 12px 0;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.3s ease;
-        }
-
-        .client {
-            background: #4facfe;
-            color: white;
-        }
-
-        .freelancer {
-            background: #00c896;
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .login {
-            margin-top: 18px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .login a {
-            color: #4facfe;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .login a:hover {
-            color: #0077ff;
-            text-decoration: underline;
-        }
-
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <h1>SkillSync 🚀</h1>
-    <p>AI-powered freelancing made smarter</p>
-
-    <a href="/signup/client/">
-        <button class="btn client">I am a Client</button>
-    </a>
-
-    <a href="/signup/freelancer/">
-        <button class="btn freelancer">I am a Freelancer</button>
-    </a>
-
-    <div class="login">
-        Already have an account?
-        <a href="/login/">Login</a>
+{% block content %}
+<section class="hero-section">
+    <div class="container-fluid px-3 px-lg-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="eyebrow">AI-powered freelance operations</div>
+                <h1>SkillSync</h1>
+                <p class="hero-copy">
+                    Price projects, predict timelines, extract skills, rank bids, and match
+                    freelancers from one polished Django platform.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary btn-lg" href="{% url 'signup' 'client' %}">
+                        <i class="bi bi-briefcase"></i> Hire talent
+                    </a>
+                    <a class="btn btn-ghost btn-lg" href="{% url 'signup' 'freelancer' %}">
+                        <i class="bi bi-stars"></i> Find work
+                    </a>
+                </div>
+                <div class="hero-metrics">
+                    <div>
+                        <strong>RF + TF-IDF</strong>
+                        <span>price intelligence</span>
+                    </div>
+                    <div>
+                        <strong>Top 3</strong>
+                        <span>freelancer matches</span>
+                    </div>
+                    <div>
+                        <strong>Smart</strong>
+                        <span>bid ranking</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-product" aria-label="SkillSync product preview">
+                    <div class="product-toolbar">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="product-grid">
+                        <div class="product-main">
+                            <div class="product-kicker">AI estimate</div>
+                            <div class="product-price">Rs. 42,500</div>
+                            <div class="product-bars">
+                                <span style="width: 84%"></span>
+                                <span style="width: 62%"></span>
+                                <span style="width: 73%"></span>
+                            </div>
+                        </div>
+                        <div class="product-side">
+                            <div class="match-ring">88%</div>
+                            <span>Best match</span>
+                        </div>
+                        <div class="product-card">
+                            <strong>Payments</strong>
+                            <span>Higher budget driver</span>
+                        </div>
+                        <div class="product-card">
+                            <strong>Admin dashboard</strong>
+                            <span>Advanced scope</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</section>
 
-</div>
-
-</body>
-</html>
+<section class="section-band">
+    <div class="container-fluid px-3 px-lg-5">
+        <div class="section-heading">
+            <span>Built for final-year project depth</span>
+            <h2>Frontend polish and backend AI working together.</h2>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="bi bi-cpu"></i>
+                <h3>AI project analysis</h3>
+                <p>Skill extraction, tags, time prediction, confidence score, and price justification.</p>
+            </div>
+            <div class="feature-card">
+                <i class="bi bi-people"></i>
+                <h3>Freelancer matching</h3>
+                <p>Scores skill overlap, experience, ratings, availability, and budget fit.</p>
+            </div>
+            <div class="feature-card">
+                <i class="bi bi-kanban"></i>
+                <h3>Project workflow</h3>
+                <p>Bids, best-bid highlighting, accepted bid status, notifications, and chat.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

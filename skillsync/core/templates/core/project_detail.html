@@ -1,0 +1,196 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ project.title_or_summary }} - SkillSync{% endblock %}
+
+{% block content %}
+<div class="detail-layout">
+    <section class="detail-main">
+        <a class="back-link" href="{% if user.profile.role == 'client' %}{% url 'client_dashboard' %}{% else %}{% url 'freelancer_dashboard' %}{% endif %}">
+            <i class="bi bi-arrow-left"></i> Back to dashboard
+        </a>
+
+        <article class="glass-panel detail-hero">
+            <div class="tag-row">
+                <span class="status-pill">{{ project.get_status_display }}</span>
+                <span class="status-pill subtle">{{ project.get_complexity_display }}</span>
+                <span class="status-pill subtle">{{ project.confidence_score }}% AI confidence</span>
+            </div>
+            <h1>{{ project.title_or_summary }}</h1>
+            <p>{{ project.description }}</p>
+            <div class="skill-row">
+                {% for skill in project.skills %}
+                    <span>{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </article>
+
+        <div class="detail-grid">
+            <div class="metric-card">
+                <span>AI budget</span>
+                <strong>{{ project.budget_range }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Average estimate</span>
+                <strong>Rs. {{ project.estimated_price }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Timeline</span>
+                <strong>{{ project.estimated_time_label }}</strong>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <div class="panel-heading">
+                <div>
+                    <span class="eyebrow">AI explanation</span>
+                    <h2>Why this price?</h2>
+                </div>
+            </div>
+            <div class="insight-box large">
+                <i class="bi bi-lightbulb"></i>
+                <span>{{ project.budget_justification }}</span>
+            </div>
+            <div class="tag-row mt-3">
+                {% for tag in project.tags %}
+                    <span class="status-pill subtle">#{{ tag }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <div class="panel-heading">
+                <div>
+                    <span class="eyebrow">Bids</span>
+                    <h2>Proposals and best match</h2>
+                </div>
+            </div>
+
+            <div class="bid-list">
+                {% for bid in bids %}
+                    <div class="bid-row roomy">
+                        <div>
+                            <strong>{{ bid.freelancer.profile.display_name }}</strong>
+                            <span>{{ bid.cover_letter|default:"No proposal note yet." }}</span>
+                        </div>
+                        <div class="bid-actions">
+                            <strong>Rs. {{ bid.amount }}</strong>
+                            <small>{{ bid.proposed_days }} days</small>
+                            <span class="status-pill">{{ bid.match_score }}% match</span>
+                            {% if user == project.user and bid.status == "pending" %}
+                                <form class="inline-form" method="POST" action="{% url 'accept_bid' bid.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-primary" type="submit">Accept</button>
+                                </form>
+                            {% else %}
+                                <span class="status-pill subtle">{{ bid.get_status_display }}</span>
+                            {% endif %}
+                            <a class="icon-button" href="{% url 'start_chat' project.id bid.freelancer.id %}" title="Message">
+                                <i class="bi bi-chat-dots"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="empty-state">No bids submitted yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <aside class="detail-sidebar">
+        {% if user.profile.role == "freelancer" and project.status == "open" %}
+            <div class="glass-panel sticky-panel">
+                <div class="match-card wide">
+                    <strong>{{ match.match_percentage }}%</strong>
+                    <span>Your match score</span>
+                </div>
+                <form method="POST" action="{% url 'place_bid_form' project.id %}" data-loading>
+                    {% csrf_token %}
+                    <label class="form-label">Bid amount</label>
+                    <input class="form-control mb-3" type="number" name="amount" value="{% if existing_bid %}{{ existing_bid.amount }}{% endif %}" required>
+                    <label class="form-label">Proposed days</label>
+                    <input class="form-control mb-3" type="number" name="proposed_days" value="{% if existing_bid %}{{ existing_bid.proposed_days }}{% else %}{{ project.estimated_days }}{% endif %}" required>
+                    <label class="form-label">Proposal</label>
+                    <textarea class="form-control mb-3" name="cover_letter" rows="4">{% if existing_bid %}{{ existing_bid.cover_letter }}{% endif %}</textarea>
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="bi bi-send"></i>
+                        {% if existing_bid %}Update bid{% else %}Place bid{% endif %}
+                    </button>
+                </form>
+                <form method="POST" action="{% url 'toggle_saved_project' project.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-ghost w-100 mt-2" type="submit">
+                    <i class="bi {% if is_saved %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
+                    {% if is_saved %}Saved{% else %}Save project{% endif %}
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+
+        {% if ai_insight %}
+            <div class="glass-panel">
+                <div class="panel-heading compact">
+                    <h2>Top freelancers</h2>
+                </div>
+                <div class="recommend-list">
+                    {% for freelancer in ai_insight.recommended_freelancers %}
+                        <div class="recommend-item">
+                            <div>
+                                <strong>{{ freelancer.display_name }}</strong>
+                                <span>{{ freelancer.headline|default:"Freelancer" }}</span>
+                            </div>
+                            <small>{{ freelancer.match_percentage }}%</small>
+                        </div>
+                    {% empty %}
+                        <div class="empty-state">No recommendations yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <div class="panel-heading compact">
+                    <h2>Similar projects</h2>
+                </div>
+                <div class="activity-list">
+                    {% for similar in ai_insight.similar_projects %}
+                        <a class="activity-item" href="{% url 'project_detail' similar.id %}">
+                            <strong>{{ similar.title }}</strong>
+                            <span>{{ similar.score }}% similar - {{ similar.budget }}</span>
+                        </a>
+                    {% empty %}
+                        <div class="empty-state">No similar projects yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if user == project.user and project.accepted_bid and project.status != "completed" %}
+            <form method="POST" action="{% url 'complete_project' project.id %}">
+                {% csrf_token %}
+                <button class="btn btn-primary w-100" type="submit">
+                    <i class="bi bi-check2-circle"></i> Mark completed
+                </button>
+            </form>
+        {% endif %}
+
+        {% if project.status == "completed" and project.accepted_bid %}
+            <div class="glass-panel">
+                <div class="panel-heading compact">
+                    <h2>Leave a rating</h2>
+                </div>
+                <form method="POST" action="{% if user == project.user %}{% url 'submit_review' project.id project.accepted_bid.freelancer.id %}{% else %}{% url 'submit_review' project.id project.user.id %}{% endif %}" data-loading>
+                    {% csrf_token %}
+                    <select class="form-select mb-3" name="rating">
+                        <option value="5">5 - Excellent</option>
+                        <option value="4">4 - Good</option>
+                        <option value="3">3 - Fair</option>
+                        <option value="2">2 - Needs work</option>
+                        <option value="1">1 - Poor</option>
+                    </select>
+                    <textarea class="form-control mb-3" name="comment" rows="3" placeholder="Write a short review"></textarea>
+                    <button class="btn btn-primary w-100" type="submit">Submit review</button>
+                </form>
+            </div>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}

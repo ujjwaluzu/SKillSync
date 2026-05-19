@@ -1,0 +1,37 @@
+{% extends "core/base.html" %}
+
+{% block title %}Messages - SkillSync{% endblock %}
+
+{% block content %}
+<div class="app-shell">
+    {% include "core/includes/sidebar.html" with active="messages" %}
+
+    <section class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <span class="eyebrow">Messages</span>
+                <h1>Project conversations</h1>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <div class="activity-list spacious">
+                {% for thread in threads %}
+                    <a class="activity-item" href="{% url 'chat_thread' thread.id %}">
+                        <div>
+                            <strong>{{ thread.project.title_or_summary|default:"Conversation" }}</strong>
+                            <span>
+                                {{ thread.client.profile.display_name }} and
+                                {{ thread.freelancer.profile.display_name }}
+                            </span>
+                        </div>
+                        <small>{{ thread.updated_at|date:"M d, H:i" }}</small>
+                    </a>
+                {% empty %}
+                    <div class="empty-state large">No conversations yet. A chat starts when a bid is accepted or a project owner opens a message thread.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+<aside class="sidebar">
+    <div class="sidebar-card">
+        <div class="sidebar-avatar">{{ user.username|slice:":1"|upper }}</div>
+        <div>
+            <strong>{{ user.profile.display_name }}</strong>
+            <span>{{ user.profile.get_role_display }}</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        {% if user.profile.role == "client" %}
+            <a class="{% if active == 'client' %}active{% endif %}" href="{% url 'client_dashboard' %}">
+                <i class="bi bi-grid"></i> Client dashboard
+            </a>
+        {% else %}
+            <a class="{% if active == 'freelancer' %}active{% endif %}" href="{% url 'freelancer_dashboard' %}">
+                <i class="bi bi-search"></i> Find projects
+            </a>
+        {% endif %}
+        <a class="{% if active == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+            <i class="bi bi-person"></i> Profile
+        </a>
+        <a class="{% if active == 'notifications' %}active{% endif %}" href="{% url 'notifications' %}">
+            <i class="bi bi-bell"></i> Notifications
+        </a>
+        <a class="{% if active == 'messages' %}active{% endif %}" href="{% url 'inbox' %}">
+            <i class="bi bi-chat-left-text"></i> Messages
+        </a>
+    </nav>
+</aside>

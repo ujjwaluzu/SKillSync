@@ -1,0 +1,37 @@
+{% extends "core/base.html" %}
+
+{% block title %}Notifications - SkillSync{% endblock %}
+
+{% block content %}
+<div class="app-shell">
+    {% include "core/includes/sidebar.html" with active="notifications" %}
+
+    <section class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <span class="eyebrow">Notifications</span>
+                <h1>Updates across projects, bids, and messages.</h1>
+            </div>
+            <a class="btn btn-ghost" href="?mark_read=1">
+                <i class="bi bi-check2-all"></i> Mark all read
+            </a>
+        </div>
+
+        <div class="glass-panel">
+            <div class="activity-list spacious">
+                {% for notification in notifications %}
+                    <a class="activity-item {% if not notification.is_read %}unread{% endif %}" href="{% url 'mark_notification_read' notification.id %}">
+                        <div>
+                            <strong>{{ notification.title }}</strong>
+                            <span>{{ notification.message }}</span>
+                        </div>
+                        <small>{{ notification.created_at|date:"M d, H:i" }}</small>
+                    </a>
+                {% empty %}
+                    <div class="empty-state large">You are all caught up.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

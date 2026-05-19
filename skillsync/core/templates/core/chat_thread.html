@@ -1,0 +1,43 @@
+{% extends "core/base.html" %}
+
+{% block title %}Conversation - SkillSync{% endblock %}
+
+{% block content %}
+<div class="app-shell">
+    {% include "core/includes/sidebar.html" with active="messages" %}
+
+    <section class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <span class="eyebrow">Conversation</span>
+                <h1>{{ thread.project.title_or_summary|default:"Project chat" }}</h1>
+            </div>
+            {% if thread.project %}
+                <a class="btn btn-ghost" href="{{ thread.project.get_absolute_url }}">
+                    <i class="bi bi-folder2-open"></i> View project
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="chat-panel glass-panel">
+            <div class="message-list">
+                {% for message in thread.messages.all %}
+                    <div class="message-bubble {% if message.sender == user %}mine{% endif %}">
+                        <strong>{{ message.sender.profile.display_name }}</strong>
+                        <p>{{ message.body }}</p>
+                        <small>{{ message.created_at|date:"M d, H:i" }}</small>
+                    </div>
+                {% empty %}
+                    <div class="empty-state">No messages yet.</div>
+                {% endfor %}
+            </div>
+
+            <form method="POST" class="message-form" data-loading>
+                {% csrf_token %}
+                <input class="form-control" name="body" placeholder="Write a message" required>
+                <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i> Send</button>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

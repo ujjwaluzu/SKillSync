@@ -1,0 +1,165 @@
+{% extends "core/base.html" %}
+
+{% block title %}Profile - SkillSync{% endblock %}
+
+{% block content %}
+<div class="app-shell">
+    {% if is_owner %}
+        {% include "core/includes/sidebar.html" with active="profile" %}
+    {% endif %}
+
+    <section class="dashboard-content">
+        <div class="profile-hero glass-panel">
+            <div class="profile-avatar">{{ profile_obj.display_name|slice:":1"|upper }}</div>
+            <div>
+                <span class="eyebrow">{{ profile_obj.get_role_display }}</span>
+                <h1>{{ profile_obj.display_name }}</h1>
+                <p>{{ profile_obj.headline|default:"SkillSync member" }}</p>
+                <div class="tag-row">
+                    <span class="status-pill">{{ profile_obj.availability|title }}</span>
+                    <span class="status-pill subtle">{{ profile_obj.completed_projects }} completed</span>
+                    <span class="status-pill subtle">{{ profile_obj.rating }} rating</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="glass-panel">
+                <div class="panel-heading">
+                    <div>
+                        <span class="eyebrow">Profile</span>
+                        <h2>{% if is_owner %}Edit your profile{% else %}About{% endif %}</h2>
+                    </div>
+                </div>
+
+                {% if is_owner %}
+                    <form method="POST" data-loading>
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="profile">
+                        <div class="form-floating mb-3">
+                            <input class="form-control" name="full_name" id="full_name" value="{{ profile_obj.full_name }}" placeholder="Full name">
+                            <label for="full_name">Full name</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" type="email" name="email" id="email" value="{{ profile_user.email }}" placeholder="Email">
+                            <label for="email">Email</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" name="headline" id="headline" value="{{ profile_obj.headline }}" placeholder="Headline">
+                            <label for="headline">Headline</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control tall-textarea" name="bio" id="bio" placeholder="Bio">{{ profile_obj.bio }}</textarea>
+                            <label for="bio">Bio</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" name="skills" id="skills" value="{{ profile_obj.skills }}" placeholder="Skills">
+                            <label for="skills">Skills</label>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" name="location" id="location" value="{{ profile_obj.location }}" placeholder="Location">
+                                    <label for="location">Location</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" type="number" name="hourly_rate" id="hourly_rate" value="{{ profile_obj.hourly_rate }}" placeholder="Hourly rate">
+                                    <label for="hourly_rate">Hourly rate</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" type="url" name="portfolio_url" id="portfolio_url" value="{{ profile_obj.portfolio_url }}" placeholder="Portfolio URL">
+                            <label for="portfolio_url">Portfolio URL</label>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <select class="form-select" name="availability" id="availability">
+                                <option value="available" {% if profile_obj.availability == "available" %}selected{% endif %}>Available</option>
+                                <option value="busy" {% if profile_obj.availability == "busy" %}selected{% endif %}>Busy</option>
+                                <option value="offline" {% if profile_obj.availability == "offline" %}selected{% endif %}>Offline</option>
+                            </select>
+                            <label for="availability">Availability</label>
+                        </div>
+                        <button class="btn btn-primary" type="submit"><i class="bi bi-check2"></i> Save profile</button>
+                    </form>
+                {% else %}
+                    <p>{{ profile_obj.bio|default:"No bio added yet." }}</p>
+                    <div class="skill-row">
+                        {% for skill in profile_obj.skill_list %}
+                            <span>{{ skill }}</span>
+                        {% empty %}
+                            <span>No skills listed</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="glass-panel">
+                <div class="panel-heading">
+                    <div>
+                        <span class="eyebrow">Portfolio</span>
+                        <h2>Work samples</h2>
+                    </div>
+                </div>
+
+                {% if is_owner %}
+                    <form method="POST" class="mini-form" data-loading>
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="portfolio">
+                        <input class="form-control" name="portfolio_title" placeholder="Project title" required>
+                        <input class="form-control" name="portfolio_url" placeholder="Project URL">
+                        <input class="form-control" name="portfolio_skills" placeholder="Skills used">
+                        <textarea class="form-control" name="portfolio_description" rows="3" placeholder="Short description"></textarea>
+                        <button class="btn btn-ghost" type="submit"><i class="bi bi-plus-lg"></i> Add item</button>
+                    </form>
+                {% endif %}
+
+                <div class="portfolio-list">
+                    {% for item in portfolio_items %}
+                        <div class="portfolio-item">
+                            <strong>{{ item.title }}</strong>
+                            <span>{{ item.description|truncatechars:120 }}</span>
+                            {% if item.project_url %}
+                                <a href="{{ item.project_url }}" target="_blank" rel="noreferrer">Open project</a>
+                            {% endif %}
+                        </div>
+                    {% empty %}
+                        <div class="empty-state">No portfolio items yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="glass-panel">
+                <div class="panel-heading compact"><h2>Recent projects</h2></div>
+                <div class="activity-list">
+                    {% for project in projects %}
+                        <a class="activity-item" href="{{ project.get_absolute_url }}">
+                            <strong>{{ project.title_or_summary }}</strong>
+                            <span>{{ project.get_status_display }} - {{ project.budget_range }}</span>
+                        </a>
+                    {% empty %}
+                        <div class="empty-state">No client projects yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="glass-panel">
+                <div class="panel-heading compact"><h2>Recent bids</h2></div>
+                <div class="activity-list">
+                    {% for bid in bids %}
+                        <a class="activity-item" href="{{ bid.project.get_absolute_url }}">
+                            <strong>{{ bid.project.title_or_summary }}</strong>
+                            <span>Rs. {{ bid.amount }} - {{ bid.get_status_display }}</span>
+                        </a>
+                    {% empty %}
+                        <div class="empty-state">No bids yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
